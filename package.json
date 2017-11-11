@@ -3,8 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "axios": "^0.17.0",
+    "konva": "^1.7.6",
     "react": "^16.0.0",
     "react-dom": "^16.0.0",
+    "react-konva": "^1.5.5-beta",
     "react-scripts-ts": "2.8.0"
   },
   "scripts": {

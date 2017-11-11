@@ -1,19 +1,22 @@
 import * as React from 'react';
 import './App.css';
+import {Layer, Line, Stage} from 'react-konva';
 
-const logo = require('./logo.svg');
 
 class App extends React.Component {
   render() {
     return (
       <div className="App">
         <div className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h2>Welcome to React</h2>
+          <h2>Mapgo</h2>
         </div>
-        <p className="App-intro">
-          To get started, edit <code>src/App.tsx</code> and save to reload.
-        </p>
+        <div className="map">
+          <Stage width={1200} height={1000}>
+            <Layer>
+              <Line points={[0, 23.51298, 250, 60, 300, 20]} stroke="green" strokeWidth={1}/>
+            </Layer>
+          </Stage>
+        </div>
       </div>
     );
   }
