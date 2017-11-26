@@ -1,0 +1,5 @@
+{
+    "wsUrl": "ws://mapgo-api.herokuapp.com",
+    "wsPort": 8081,
+    "stepSize": 100
+}

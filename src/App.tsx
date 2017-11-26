@@ -2,8 +2,18 @@ import * as React from 'react';
 import './App.css';
 import { Layer, Line, Stage } from 'react-konva';
 import * as io from 'socket.io-client';
-import { Road, MinMaxData, AppState, AppResetState, CommandData } from './interface/index';
+import { Road, MinMaxData, AppState, AppResetState, CommandData, AppConfig } from './interface/index';
 import Modal from './Modal';
+
+let config: AppConfig;
+
+if (process.env.NODE_ENV == "production") {
+  config = require('./config/config.production.json');
+} else if (process.env.NODE_ENV == "development") {
+  config = require('./config/config.development.json');
+} else {
+  throw "NODE_ENV is not set";
+}
 
 class App extends React.Component<object, AppState> {
 
@@ -17,7 +27,7 @@ class App extends React.Component<object, AppState> {
   private canvasWidth: number = Math.floor(screen.width * 0.8);
 
   // Algorithm step size
-  private stepSize: number = 50;
+  private stepSize: number = config.stepSize;
 
   constructor(props: object) {
     super(props);
@@ -42,7 +52,7 @@ class App extends React.Component<object, AppState> {
     }
 
     // Start websocket
-    this.ws = io('ws://localhost:8081');
+    this.ws = io(config.wsUrl + ":" + config.wsPort);
   }
 
   /**
@@ -240,7 +250,7 @@ class App extends React.Component<object, AppState> {
             <div className="App-title-desc">
               <div className="App-title">
                 Map<span className="go">go</span>
-            </div>
+              </div>
               <div className="App-description">
                 Draw maps using graph algorithms
             </div>
@@ -258,8 +268,8 @@ class App extends React.Component<object, AppState> {
         </div>
         {!this.state.isConnected ? <Modal>Disconnected from server, trying to reconnect</Modal> : null}
         {this.state.isConnected && this.state.receivingSteps ? <Modal>Receiving graph data from server
-          <progress className="prgress" max="100" value={((this.state.roads.length / this.state.roadCount) * 100).toFixed(0)}/>
-           </Modal> : null}
+          <progress className="prgress" max="100" value={((this.state.roads.length / this.state.roadCount) * 100).toFixed(0)} />
+        </Modal> : null}
         <div className="map">
           <Stage width={this.state.width} height={this.state.height}>
             <Layer>
@@ -268,7 +278,7 @@ class App extends React.Component<object, AppState> {
           </Stage>
         </div>
         <div className="footer">
-        Copyright &copy; 2017 <a href="https://github.com/alehuo" target="_blank">alehuo</a>. Mapgo is a course project on the university course Intermediate course studies: Data structures and algorithms.
+          Copyright &copy; 2017 <a href="https://github.com/alehuo" target="_blank">alehuo</a>. Mapgo is a course project on the university course Intermediate course studies: Data structures and algorithms.
         </div>
       </div>
     );
