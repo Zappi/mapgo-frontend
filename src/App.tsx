@@ -8,7 +8,7 @@ import Modal from './Modal';
 let config: AppConfig;
 
 if (process.env.NODE_ENV == "production") {
-  config = require('./config/config.production.json');
+  config = require('./config/config.development.json');
 } else if (process.env.NODE_ENV == "development") {
   config = require('./config/config.development.json');
 } else {
@@ -21,10 +21,10 @@ class App extends React.Component<object, AppState> {
   private ws: any;
 
   // Canvas height
-  private canvasHeight: number = 500;
+  private canvasHeight: number = 1000;
 
   // Canvas width
-  private canvasWidth: number = Math.floor(screen.width * 0.8);
+  private canvasWidth: number = 1000;
 
   // Algorithm step size
   private stepSize: number = config.stepSize;
