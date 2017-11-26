@@ -52,7 +52,7 @@ class App extends React.Component<object, AppState> {
     }
 
     // Start websocket
-    this.ws = io(config.wsUrl + ":" + config.wsPort);
+    this.ws = io(config.wsUrl);
   }
 
   /**

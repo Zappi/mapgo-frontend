@@ -1,5 +1,4 @@
 {
-    "wsUrl": "ws://localhost",
-    "wsPort": 8081,
+    "wsUrl": "ws://localhost:8081",
     "stepSize": 200
 }
