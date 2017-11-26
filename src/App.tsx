@@ -8,7 +8,7 @@ import Modal from './Modal';
 let config: AppConfig;
 
 if (process.env.NODE_ENV == "production") {
-  config = require('./config/config.development.json');
+  config = require('./config/config.production.json');
 } else if (process.env.NODE_ENV == "development") {
   config = require('./config/config.development.json');
 } else {
