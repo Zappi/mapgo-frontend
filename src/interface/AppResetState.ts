@@ -4,6 +4,7 @@ interface AppResetState {
     disabled: boolean,
     drawing: boolean,
     stop: boolean,
+    receivingSteps: boolean,
     minX: number,
     maxX: number,
     minY: number,
@@ -12,6 +13,7 @@ interface AppResetState {
     height: number,
     lines: any[],
     roads: Road[],
+    roadCount: number,
     index: number
 }
 

@@ -5,6 +5,7 @@ interface AppState {
     disabled: boolean,
     drawing: boolean,
     stop: boolean,
+    receivingSteps: boolean,
     algorithm?: string,
     minX: number,
     maxX: number,
@@ -14,6 +15,7 @@ interface AppState {
     height: number,
     lines: any[],
     roads: Road[],
+    roadCount: number,
     index: number
 }
 

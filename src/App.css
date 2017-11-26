@@ -1,16 +1,53 @@
-.App {
-  text-align: center;
-}
-
 .App-header {
   background-color: #3a3a3a;
   padding: 10px;
   color: white;
 }
 
+.App-header-wrapper {
+  width: 98%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.App-title-desc,
+.App-algo-exc {
+  display: inline-block;
+  width: 50%;
+  height: 100%;
+}
+
+.App-title {
+  font-size: 38pt;
+  width: 100%;
+}
+
+.App-description {
+  font-size: 13pt;
+  color: #c9c9c9;
+  width: 100%;
+}
+
 button,
-input, select {
+input,
+select {
   height: 40px;
   font-size: 12pt;
   margin: 4px;
+}
+
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  text-shadow: 1px 1px #000000;
+  min-width: 400px;
+  max-width: 95%;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 15px;
+  color: white;
+  font-size: 17pt;
+  text-align: center;
+  padding: 20px;
+  transform: translate(-50%, -50%);
 }

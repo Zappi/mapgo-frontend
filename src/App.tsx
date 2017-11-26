@@ -2,7 +2,8 @@ import * as React from 'react';
 import './App.css';
 import { Layer, Line, Stage } from 'react-konva';
 import * as io from 'socket.io-client';
-import { Road, MinMaxData, AppState, AppResetState } from './interface/index';
+import { Road, MinMaxData, AppState, AppResetState, CommandData } from './interface/index';
+import Modal from './Modal';
 
 class App extends React.Component<object, AppState> {
 
@@ -15,6 +16,9 @@ class App extends React.Component<object, AppState> {
   // Canvas width
   private canvasWidth: number = Math.floor(screen.width * 0.8);
 
+  // Algorithm step size
+  private stepSize: number = 50;
+
   constructor(props: object) {
     super(props);
     // App state
@@ -22,6 +26,7 @@ class App extends React.Component<object, AppState> {
       isConnected: false,
       disabled: false,
       drawing: false,
+      receivingSteps: false,
       stop: false,
       algorithm: "DIJKSTRA",
       minX: 9999,
@@ -32,6 +37,7 @@ class App extends React.Component<object, AppState> {
       height: this.canvasHeight,
       lines: [],
       roads: [],
+      roadCount: 0,
       index: 0
     }
 
@@ -46,6 +52,7 @@ class App extends React.Component<object, AppState> {
     return {
       disabled: false,
       drawing: false,
+      receivingSteps: false,
       stop: false,
       minX: 9999,
       maxX: -9999,
@@ -55,6 +62,7 @@ class App extends React.Component<object, AppState> {
       height: this.canvasHeight,
       lines: [],
       roads: [],
+      roadCount: 0,
       index: 0,
     }
   }
@@ -106,8 +114,8 @@ class App extends React.Component<object, AppState> {
    * Renders the map.
    */
   async renderMap() {
-    var roads: Road[] = this.state.roads.slice();
     this.setState({ drawing: true });
+    var roads: Road[] = this.state.roads.slice();
     // Sort the roads by road id
     roads.sort(this.roadSort);
     // Loop through roads and add a line per road
@@ -125,6 +133,8 @@ class App extends React.Component<object, AppState> {
       // Delay to stop UI freezing
       await this.delay(2);
     }
+
+    this.setState({disabled: false});
   }
 
   /**
@@ -157,22 +167,32 @@ class App extends React.Component<object, AppState> {
       let maxY = parsedData.maxY;
       let minY = parsedData.minY;
       let maxX = parsedData.maxX;
-      // console.log("minX: %d, maxX: %d, minY: %d, maxY: %d", minX, maxX, minY, maxY);
-      this.setState({ minX, minY, maxX, maxY });
+      let roadCount = parsedData.roadCount;
+      console.log("minX: %d, maxX: %d, minY: %d, maxY: %d, roadCount: %d", minX, maxX, minY, maxY, roadCount);
+      this.setState({ minX, minY, maxX, maxY, roadCount });
     });
 
     // When a step is sent
     this.ws.on('calculating_sending_step', async (data: string) => {
+      this.setState({receivingSteps: true});
       let parsedData: any = JSON.parse(data);
 
-      let coords: Road[] = parsedData.payload;
+      let tmpRoads: Road[] = parsedData.payload;
+
       // For each coordinate
-      for (let i = 0; i < coords.length; i++) {
-        this.setState({ roads: [...this.state.roads, coords[i]] });
+      for (let i = 0; i < tmpRoads.length; i++) {
+        this.setState({ roads: [...this.state.roads, tmpRoads[i]]});
         await this.delay(2);
       }
-      this.setState({ disabled: false });
+      //If we have received all roads, start drawing
+      //console.log("roads: %d, total roads: %d", this.state.roadCount, this.state.roads.length);
+      if(this.state.roadCount > 0 && (this.state.roads.length / this.state.roadCount) > 0.9 && !this.state.drawing) {
+        this.setState({receivingSteps: false});
+        this.renderMap();
+      }
     });
+
+    // this.renderMap();
 
     // When calculating starts
     this.ws.on('calculating_started', (data: string) => {
@@ -197,9 +217,10 @@ class App extends React.Component<object, AppState> {
   startAlgo = (algo: string) => {
     this.setState(this.getInitialState());
     this.setState({ disabled: true });
-    var data = {
-      "status": "START_CALC",
-      "algo": algo
+    var data: CommandData = {
+      status: "START_CALC",
+      algo: algo,
+      stepSize: this.stepSize
     };
     this.ws.emit("command", JSON.stringify(data));
   }
@@ -215,20 +236,29 @@ class App extends React.Component<object, AppState> {
     return (
       <div className="App">
         <div className="App-header">
-          <h1>Mapgo</h1>
-          <h3>{this.state.isConnected ? <span style={{ color: "green" }}>Connected to back-end</span> : <span style={{ color: "red" }}>Not connected to back-end</span>}</h3>
-          <div className="algoSelection">
-            <select onChange={this.change} value={this.state.algorithm} disabled={this.state.disabled}>
-              <option value="DIJKSTRA">Dijkstra's algorithm</option>
-              <option value="ASTAR">AStar algorithm</option>
-            </select>
-            <button onClick={() => this.startAlgo((this.state.algorithm == undefined) ? "DIJKSTRA" : this.state.algorithm)} disabled={this.state.disabled}>Load map</button>
-          </div>
-          <div className="executeBtns">
-            {!this.state.drawing ? <button onClick={() => this.renderMap()} disabled={this.state.disabled}>Start simulation ({this.state.index} / {this.state.roads.length})</button> :
-              <button style={{ backgroundColor: "red", color: "white" }} onClick={() => this.setState({ stop: true })}>Stop simulation ({this.state.index} / {this.state.roads.length})</button>}
+          <div className="App-header-wrapper">
+            <div className="App-title-desc">
+              <div className="App-title">
+                Mapgo
+            </div>
+              <div className="App-description">
+                Draw maps using graph algorithms
+            </div>
+            </div>
+            <div className="App-algo-exc">
+              {/*<h3>{this.state.isConnected ? <span style={{ color: "green" }}>Connected to back-end</span> : <span style={{ color: "red" }}>Not connected to back-end</span>}</h3>*/}
+              <div className="algoSelection">
+                <select onChange={this.change} value={this.state.algorithm} disabled={!this.state.isConnected || this.state.disabled}>
+                  <option value="DIJKSTRA">Dijkstra's algorithm</option>
+                  <option value="ASTAR">A* algorithm</option>
+                </select>
+                <button onClick={() => this.startAlgo((this.state.algorithm == undefined) ? "DIJKSTRA" : this.state.algorithm)} disabled={!this.state.isConnected || this.state.disabled}>Draw map</button>
+              </div>
+            </div>
           </div>
         </div>
+        {!this.state.isConnected ? <Modal>Disconnected from server, trying to reconnect</Modal> : null}
+        {this.state.isConnected && this.state.receivingSteps ? <Modal>Receiving graph data from server ({((this.state.roads.length / this.state.roadCount)*100).toFixed(2)}%)</Modal> : null}
         <div className="map">
           <Stage width={this.state.width} height={this.state.height}>
             <Layer>
