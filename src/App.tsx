@@ -127,14 +127,14 @@ class App extends React.Component<object, AppState> {
       let r: Road = roads[i];
       var lines: any = this.state.lines.slice();
       // Create a new line, converting x and y values.
-      let line: any = <Line key={this.state.index} points={[this.convertX(r.e.x), this.convertY(r.e.y), this.convertX(r.s.x), this.convertY(r.s.y)]} stroke="white" strokeWidth={1} />;
+      let line: any = <Line key={this.state.index} points={[this.convertX(r.e.x), this.convertY(r.e.y), this.convertX(r.s.x), this.convertY(r.s.y)]} stroke="red" strokeWidth={1} />;
       lines.push(line);
       this.setState({ lines, index: this.state.index + 1 });
       // Delay to stop UI freezing
       await this.delay(2);
     }
 
-    this.setState({disabled: false});
+    this.setState({ disabled: false });
   }
 
   /**
@@ -174,20 +174,20 @@ class App extends React.Component<object, AppState> {
 
     // When a step is sent
     this.ws.on('calculating_sending_step', async (data: string) => {
-      this.setState({receivingSteps: true});
+      this.setState({ receivingSteps: true });
       let parsedData: any = JSON.parse(data);
 
       let tmpRoads: Road[] = parsedData.payload;
 
       // For each coordinate
       for (let i = 0; i < tmpRoads.length; i++) {
-        this.setState({ roads: [...this.state.roads, tmpRoads[i]]});
+        this.setState({ roads: [...this.state.roads, tmpRoads[i]] });
         await this.delay(2);
       }
       //If we have received all roads, start drawing
       //console.log("roads: %d, total roads: %d", this.state.roadCount, this.state.roads.length);
-      if(this.state.roadCount > 0 && (this.state.roads.length / this.state.roadCount) > 0.9 && !this.state.drawing) {
-        this.setState({receivingSteps: false});
+      if (this.state.roadCount > 0 && this.state.roads.length == this.state.roadCount && !this.state.drawing) {
+        this.setState({ receivingSteps: false });
         this.renderMap();
       }
     });
@@ -239,32 +239,36 @@ class App extends React.Component<object, AppState> {
           <div className="App-header-wrapper">
             <div className="App-title-desc">
               <div className="App-title">
-                Mapgo
+                Map<span className="go">go</span>
             </div>
               <div className="App-description">
                 Draw maps using graph algorithms
             </div>
             </div>
             <div className="App-algo-exc">
-              {/*<h3>{this.state.isConnected ? <span style={{ color: "green" }}>Connected to back-end</span> : <span style={{ color: "red" }}>Not connected to back-end</span>}</h3>*/}
               <div className="algoSelection">
                 <select onChange={this.change} value={this.state.algorithm} disabled={!this.state.isConnected || this.state.disabled}>
                   <option value="DIJKSTRA">Dijkstra's algorithm</option>
                   <option value="ASTAR">A* algorithm</option>
                 </select>
-                <button onClick={() => this.startAlgo((this.state.algorithm == undefined) ? "DIJKSTRA" : this.state.algorithm)} disabled={!this.state.isConnected || this.state.disabled}>Draw map</button>
+                <button className="btn btn-primary" onClick={() => this.startAlgo((this.state.algorithm == undefined) ? "DIJKSTRA" : this.state.algorithm)} disabled={!this.state.isConnected || this.state.disabled}>Draw map</button>
               </div>
             </div>
           </div>
         </div>
         {!this.state.isConnected ? <Modal>Disconnected from server, trying to reconnect</Modal> : null}
-        {this.state.isConnected && this.state.receivingSteps ? <Modal>Receiving graph data from server ({((this.state.roads.length / this.state.roadCount)*100).toFixed(2)}%)</Modal> : null}
+        {this.state.isConnected && this.state.receivingSteps ? <Modal>Receiving graph data from server
+          <progress className="prgress" max="100" value={((this.state.roads.length / this.state.roadCount) * 100).toFixed(0)}/>
+           </Modal> : null}
         <div className="map">
           <Stage width={this.state.width} height={this.state.height}>
             <Layer>
               {this.state.lines.map((line: any) => line)}
             </Layer>
           </Stage>
+        </div>
+        <div className="footer">
+        Copyright &copy; 2017 <a href="https://github.com/alehuo" target="_blank">alehuo</a>. Mapgo is a course project on the university course Intermediate course studies: Data structures and algorithms.
         </div>
       </div>
     );

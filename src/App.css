@@ -1,7 +1,11 @@
-.App-header {
+.App-header, .footer {
   background-color: #3a3a3a;
-  padding: 10px;
   color: white;
+  padding: 10px;
+}
+
+.go {
+  color: #86aa43;
 }
 
 .App-header-wrapper {
@@ -22,7 +26,7 @@
   width: 100%;
 }
 
-.App-description {
+.App-description, .footer {
   font-size: 13pt;
   color: #c9c9c9;
   width: 100%;
@@ -36,18 +40,32 @@ select {
   margin: 4px;
 }
 
-.modal {
+.app-modal {
   position: fixed;
   top: 50%;
   left: 50%;
   text-shadow: 1px 1px #000000;
   min-width: 400px;
   max-width: 95%;
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(54, 54, 54, 0.5);
   border-radius: 15px;
   color: white;
   font-size: 17pt;
   text-align: center;
   padding: 20px;
   transform: translate(-50%, -50%);
+}
+
+.prgress {
+  display: block;
+  width: 95%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+}
+
+.footer {
+  position: fixed;
+  bottom: 0;
+  font-size: 10pt;
 }
