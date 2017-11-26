@@ -21,10 +21,10 @@ class App extends React.Component<object, AppState> {
   private ws: any;
 
   // Canvas height
-  private canvasHeight: number = 1000;
+  private canvasHeight: number = 600;
 
   // Canvas width
-  private canvasWidth: number = 1000;
+  private canvasWidth: number = Math.floor(screen.width * 0.8);
 
   // Algorithm step size
   private stepSize: number = config.stepSize;
