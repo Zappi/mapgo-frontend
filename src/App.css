@@ -3,7 +3,14 @@
 }
 
 .App-header {
-  background-color: #222;
-  padding: 0.1px;
+  background-color: #3a3a3a;
+  padding: 10px;
   color: white;
+}
+
+button,
+input, select {
+  height: 40px;
+  font-size: 12pt;
+  margin: 4px;
 }
