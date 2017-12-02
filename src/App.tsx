@@ -2,7 +2,7 @@ import * as React from 'react';
 import './App.css';
 import { Layer, Line, Stage } from 'react-konva';
 import * as io from 'socket.io-client';
-import { Road, MinMaxData, AppState, AppResetState, CommandData, AppConfig } from './interface/index';
+import { Road, MinMaxData, AppState, AppResetState, CommandData, AppConfig, AvailableAlgo } from './interface/index';
 import Modal from './Modal';
 
 let config: AppConfig;
@@ -37,6 +37,7 @@ class App extends React.Component<object, AppState> {
       disabled: false,
       drawing: false,
       receivingSteps: false,
+      availableAlgos: [],
       stop: false,
       algorithm: "DIJKSTRA",
       minX: 9999,
@@ -167,6 +168,7 @@ class App extends React.Component<object, AppState> {
     // When we connect
     this.ws.on('connect', () => {
       this.setState({ isConnected: true });
+      this.ws.emit('getAlgoList');
     });
 
     // When back end sends minimum and maximum x and y
@@ -219,6 +221,12 @@ class App extends React.Component<object, AppState> {
       this.setState({ isConnected: false });
     });
 
+    // On algo list
+    this.ws.on('algorithmList', (data: string) => {
+      let parsedData: any = JSON.parse(data);
+      let algoList: AvailableAlgo[] = parsedData.payload;
+      this.setState({ availableAlgos: algoList });
+    });
   }
 
   /**
@@ -258,15 +266,14 @@ class App extends React.Component<object, AppState> {
             <div className="App-algo-exc">
               <div className="algoSelection">
                 <select onChange={this.change} value={this.state.algorithm} disabled={!this.state.isConnected || this.state.disabled}>
-                  <option value="DIJKSTRA">Dijkstra's algorithm</option>
-                  <option value="ASTAR">A* algorithm</option>
+                  {this.state.availableAlgos.map((algo: AvailableAlgo) => <option value={algo.command}>{algo.displayName}</option>)}
                 </select>
                 <button className="btn btn-primary" onClick={() => this.startAlgo((this.state.algorithm == undefined) ? "DIJKSTRA" : this.state.algorithm)} disabled={!this.state.isConnected || this.state.disabled}>Draw map</button>
               </div>
             </div>
           </div>
         </div>
-        {!this.state.isConnected ? <Modal>Disconnected from server, trying to reconnect</Modal> : null}
+        {!this.state.isConnected ? <Modal>Connecting to server</Modal> : null}
         {this.state.isConnected && this.state.receivingSteps ? <Modal>Receiving graph data from server
           <progress className="prgress" max="100" value={((this.state.roads.length / this.state.roadCount) * 100).toFixed(0)} />
         </Modal> : null}

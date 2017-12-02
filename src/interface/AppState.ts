@@ -1,4 +1,4 @@
-import { Road } from "./index";
+import { Road, AvailableAlgo } from "./index";
 
 interface AppState {
     isConnected?: boolean,
@@ -7,6 +7,7 @@ interface AppState {
     stop: boolean,
     receivingSteps: boolean,
     algorithm?: string,
+    availableAlgos: AvailableAlgo[]
     minX: number,
     maxX: number,
     minY: number,

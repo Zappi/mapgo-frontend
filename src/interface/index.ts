@@ -5,3 +5,4 @@ export { default as AppState } from './AppState';
 export { default as AppResetState } from './AppResetState';
 export { default as CommandData } from './CommandData';
 export { default as AppConfig } from './AppConfig';
+export { default as AvailableAlgo } from './AvailableAlgo';
