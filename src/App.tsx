@@ -168,7 +168,6 @@ class App extends React.Component<object, AppState> {
     // When we connect
     this.ws.on('connect', () => {
       this.setState({ isConnected: true });
-      this.ws.emit('getAlgoList');
     });
 
     // When back end sends minimum and maximum x and y
@@ -223,6 +222,7 @@ class App extends React.Component<object, AppState> {
 
     // On algo list
     this.ws.on('algorithmList', (data: string) => {
+      console.log(data);
       let parsedData: any = JSON.parse(data);
       let algoList: AvailableAlgo[] = parsedData.payload;
       this.setState({ availableAlgos: algoList });
