@@ -3,7 +3,9 @@ interface MinMaxData {
     maxX: number,
     maxY: number,
     minY: number,
-    roadCount: number
+    roadCount: number,
+    startingX: number,
+    startingY: number
 }
 
 export default MinMaxData;

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import './App.css';
-import { Layer, Line, Stage } from 'react-konva';
+import { Layer, Line, Stage, Rect } from 'react-konva';
 import * as io from 'socket.io-client';
 import { Road, MinMaxData, AppState, AppResetState, CommandData, AppConfig, AvailableAlgo } from './interface/index';
 import Modal from './Modal';
@@ -44,6 +44,9 @@ class App extends React.Component<object, AppState> {
       maxX: -9999,
       minY: 9999,
       maxY: -9999,
+      startingX: 9999,
+      startingY: 9999,
+      startingPoint: null,
       width: this.canvasWidth,
       height: this.canvasHeight,
       lines: [],
@@ -69,6 +72,9 @@ class App extends React.Component<object, AppState> {
       maxX: -9999,
       minY: 9999,
       maxY: -9999,
+      startingX: 9999,
+      startingY: 9999,
+      startingPoint: null,
       width: this.canvasWidth,
       height: this.canvasHeight,
       lines: [],
@@ -178,9 +184,18 @@ class App extends React.Component<object, AppState> {
       let maxY = parsedData.maxY;
       let minY = parsedData.minY;
       let maxX = parsedData.maxX;
+      let startingX = parsedData.startingX;
+      let startingY = parsedData.startingY;
       let roadCount = parsedData.roadCount;
-      console.log("minX: %d, maxX: %d, minY: %d, maxY: %d, roadCount: %d", minX, maxX, minY, maxY, roadCount);
-      this.setState({ minX, minY, maxX, maxY, roadCount });
+      console.log("minX: %d, maxX: %d, minY: %d, maxY: %d, startingX: %d, startingY: %d, roadCount: %d", minX, maxX, minY, maxY, startingX, startingY, roadCount);
+      this.setState({ minX, minY, maxX, maxY, startingX, startingY, roadCount });
+      this.setState({startingPoint : <Rect
+        x={this.convertX(startingX - 3)}
+        y={this.convertY(startingY) - 3}
+        width={6}
+        height={6}
+        fill="green"
+      />});
     });
 
     // When a step is sent
@@ -232,13 +247,14 @@ class App extends React.Component<object, AppState> {
   /**
    * Requests back end to start calculating the graph with a defined algorithm.
    */
-  startAlgo = (algo: string) => {
+  startAlgo = (algo: string, startingNode: number, stepSize: number) => {
     this.setState(this.getInitialState());
     this.setState({ disabled: true });
     var data: CommandData = {
       status: "START_CALC",
       algo: algo,
-      stepSize: this.stepSize
+      startingNode: startingNode,
+      stepSize: stepSize
     };
     this.ws.emit("command", JSON.stringify(data));
   }
@@ -268,7 +284,7 @@ class App extends React.Component<object, AppState> {
                 <select onChange={this.change} value={this.state.algorithm} disabled={!this.state.isConnected || this.state.disabled}>
                   {this.state.availableAlgos.map((algo: AvailableAlgo) => <option value={algo.command}>{algo.displayName}</option>)}
                 </select>
-                <button className="btn btn-primary" onClick={() => this.startAlgo((this.state.algorithm == undefined) ? "DIJKSTRA" : this.state.algorithm)} disabled={!this.state.isConnected || this.state.disabled}>Draw map</button>
+                <button className="btn btn-primary" onClick={() => this.startAlgo((this.state.algorithm == undefined) ? "DIJKSTRA" : this.state.algorithm, 0, this.stepSize)} disabled={!this.state.isConnected || this.state.disabled}>Draw map</button>
               </div>
             </div>
           </div>
@@ -281,6 +297,7 @@ class App extends React.Component<object, AppState> {
           <Stage width={this.state.width} height={this.state.height}>
             <Layer>
               {this.state.lines.map((line: any) => line)}
+              {this.state.startingPoint == null ? null : this.state.startingPoint}
             </Layer>
           </Stage>
         </div>
