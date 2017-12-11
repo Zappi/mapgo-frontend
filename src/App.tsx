@@ -270,16 +270,18 @@ class App extends React.Component<object, AppState> {
   /**
    * Requests back end to start calculating the graph with a defined algorithm.
    */
-  startAlgo = (algo: string, startingNode: number, stepSize: number) => {
+  startAlgo = (algo: string, startingNode: number, stepSize: number, endingNode?: number) => {
     this.setState(this.getInitialState());
     this.setState({ disabled: true });
     var data: CommandData = {
       status: "START_CALC",
       algo: algo,
       startingNode: startingNode,
-      endingNode: 10,
       stepSize: stepSize
     };
+    if (endingNode !== undefined) {
+      data.endingNode = endingNode;
+    }
     this.ws.emit("command", JSON.stringify(data));
   }
 
@@ -308,7 +310,7 @@ class App extends React.Component<object, AppState> {
                 <select onChange={this.change} value={this.state.algorithm} disabled={!this.state.isConnected || this.state.disabled}>
                   {this.state.availableAlgos.map((algo: AvailableAlgo) => <option value={algo.command}>{algo.displayName}</option>)}
                 </select>
-                <button className="btn btn-primary" onClick={() => this.startAlgo((this.state.algorithm == undefined) ? "DIJKSTRA" : this.state.algorithm, 0, this.stepSize)} disabled={!this.state.isConnected || this.state.disabled}>Draw map</button>
+                <button className="btn btn-primary" onClick={() => this.startAlgo((this.state.algorithm == undefined) ? "DIJKSTRA" : this.state.algorithm, 0, this.stepSize, 400)} disabled={!this.state.isConnected || this.state.disabled}>Draw map</button>
               </div>
             </div>
           </div>
