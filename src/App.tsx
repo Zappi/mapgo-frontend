@@ -46,7 +46,10 @@ class App extends React.Component<object, AppState> {
       maxY: -9999,
       startingX: 9999,
       startingY: 9999,
+      endingX: 9999,
+      endingY: 9999,
       startingPoint: null,
+      endingPoint: null,
       width: this.canvasWidth,
       height: this.canvasHeight,
       lines: [],
@@ -74,7 +77,10 @@ class App extends React.Component<object, AppState> {
       maxY: -9999,
       startingX: 9999,
       startingY: 9999,
+      endingX: 9999,
+      endingY: 9999,
       startingPoint: null,
+      endingPoint: null,
       width: this.canvasWidth,
       height: this.canvasHeight,
       lines: [],
@@ -186,16 +192,33 @@ class App extends React.Component<object, AppState> {
       let maxX = parsedData.maxX;
       let startingX = parsedData.startingX;
       let startingY = parsedData.startingY;
+
+      let endingX = (parsedData.endingX == undefined) ? 9999 : parsedData.endingX;
+      let endingY = (parsedData.endingY == undefined) ? 9999 : parsedData.endingY;
+
       let roadCount = parsedData.roadCount;
       console.log("minX: %d, maxX: %d, minY: %d, maxY: %d, startingX: %d, startingY: %d, roadCount: %d", minX, maxX, minY, maxY, startingX, startingY, roadCount);
       this.setState({ minX, minY, maxX, maxY, startingX, startingY, roadCount });
-      this.setState({startingPoint : <Rect
-        x={this.convertX(startingX - 3)}
-        y={this.convertY(startingY) - 3}
-        width={6}
-        height={6}
-        fill="green"
-      />});
+      this.setState({
+        startingPoint: <Rect
+          x={this.convertX(startingX) - 3}
+          y={this.convertY(startingY) - 3}
+          width={6}
+          height={6}
+          fill="green"
+        />
+      });
+      if (parsedData.endingX !== undefined && parsedData.endingY !== undefined) {
+        this.setState({
+          endingPoint: <Rect
+            x={this.convertX(endingX) - 3}
+            y={this.convertY(endingY) - 3}
+            width={6}
+            height={6}
+            fill="blue"
+          />
+        });
+      }
     });
 
     // When a step is sent
@@ -254,6 +277,7 @@ class App extends React.Component<object, AppState> {
       status: "START_CALC",
       algo: algo,
       startingNode: startingNode,
+      endingNode: 10,
       stepSize: stepSize
     };
     this.ws.emit("command", JSON.stringify(data));
@@ -298,6 +322,7 @@ class App extends React.Component<object, AppState> {
             <Layer>
               {this.state.lines.map((line: any) => line)}
               {this.state.startingPoint == null ? null : this.state.startingPoint}
+              {this.state.endingPoint == null ? null : this.state.endingPoint}
             </Layer>
           </Stage>
         </div>
