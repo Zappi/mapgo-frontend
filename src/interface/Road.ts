@@ -1,9 +1,9 @@
-import { Point } from "./index";
+import { Point } from './index';
 
 interface Road {
-    e: Point,
-    s: Point,
-    r: number
+    e: Point;
+    s: Point;
+    r: number;
 }
 
 export default Road;

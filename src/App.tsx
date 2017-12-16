@@ -7,12 +7,12 @@ import Modal from './Modal';
 
 let config: AppConfig;
 
-if (process.env.NODE_ENV == "production") {
+if (process.env.NODE_ENV === 'production') {
   config = require('./config/config.production.json');
-} else if (process.env.NODE_ENV == "development") {
+} else if (process.env.NODE_ENV === 'development') {
   config = require('./config/config.development.json');
 } else {
-  throw "NODE_ENV is not set";
+  throw 'NODE_ENV is not set';
 }
 
 class App extends React.Component<object, AppState> {
@@ -39,7 +39,7 @@ class App extends React.Component<object, AppState> {
       receivingSteps: false,
       availableAlgos: [],
       stop: false,
-      algorithm: "DIJKSTRA",
+      algorithm: 'DIJKSTRA',
       minX: 9999,
       maxX: -9999,
       minY: 9999,
@@ -56,7 +56,7 @@ class App extends React.Component<object, AppState> {
       roads: [],
       roadCount: 0,
       index: 0
-    }
+    };
 
     // Start websocket
     this.ws = io(config.wsUrl);
@@ -87,7 +87,7 @@ class App extends React.Component<object, AppState> {
       roads: [],
       roadCount: 0,
       index: 0,
-    }
+    };
   }
 
   /**
@@ -150,7 +150,13 @@ class App extends React.Component<object, AppState> {
       let r: Road = roads[i];
       var lines: any = this.state.lines.slice();
       // Create a new line, converting x and y values.
-      let line: any = <Line key={this.state.index} points={[this.convertX(r.e.x), this.convertY(r.e.y), this.convertX(r.s.x), this.convertY(r.s.y)]} stroke="red" strokeWidth={1} />;
+      let line: any = (
+        <Line
+          key={this.state.index}
+          points={[this.convertX(r.e.x), this.convertY(r.e.y), this.convertX(r.s.x), this.convertY(r.s.y)]}
+          stroke="red"
+          strokeWidth={1}
+        />);
       lines.push(line);
       this.setState({ lines, index: this.state.index + 1 });
       // Delay to stop UI freezing
@@ -193,30 +199,40 @@ class App extends React.Component<object, AppState> {
       let startingX = parsedData.startingX;
       let startingY = parsedData.startingY;
 
-      let endingX = (parsedData.endingX == undefined) ? 9999 : parsedData.endingX;
-      let endingY = (parsedData.endingY == undefined) ? 9999 : parsedData.endingY;
+      let endingX = (parsedData.endingX === undefined) ? 9999 : parsedData.endingX;
+      let endingY = (parsedData.endingY === undefined) ? 9999 : parsedData.endingY;
 
       let roadCount = parsedData.roadCount;
-      console.log("minX: %d, maxX: %d, minY: %d, maxY: %d, startingX: %d, startingY: %d, roadCount: %d", minX, maxX, minY, maxY, startingX, startingY, roadCount);
+      console.log(
+        'minX: %d, maxX: %d, minY: %d, maxY: %d, startingX: %d, startingY: %d, roadCount: %d',
+        minX,
+        maxX,
+        minY,
+        maxY,
+        startingX,
+        startingY,
+        roadCount);
       this.setState({ minX, minY, maxX, maxY, startingX, startingY, roadCount });
       this.setState({
-        startingPoint: <Rect
-          x={this.convertX(startingX) - 3}
-          y={this.convertY(startingY) - 3}
-          width={6}
-          height={6}
-          fill="green"
-        />
+        startingPoint: (
+          <Rect
+            x={this.convertX(startingX) - 3}
+            y={this.convertY(startingY) - 3}
+            width={6}
+            height={6}
+            fill="green"
+          />)
       });
       if (parsedData.endingX !== undefined && parsedData.endingY !== undefined) {
         this.setState({
-          endingPoint: <Rect
-            x={this.convertX(endingX) - 3}
-            y={this.convertY(endingY) - 3}
-            width={6}
-            height={6}
-            fill="blue"
-          />
+          endingPoint: (
+            <Rect
+              x={this.convertX(endingX) - 3}
+              y={this.convertY(endingY) - 3}
+              width={6}
+              height={6}
+              fill="blue"
+            />)
         });
       }
     });
@@ -233,9 +249,9 @@ class App extends React.Component<object, AppState> {
         this.setState({ roads: [...this.state.roads, tmpRoads[i]] });
         await this.delay(2);
       }
-      //If we have received all roads, start drawing
-      //console.log("roads: %d, total roads: %d", this.state.roadCount, this.state.roads.length);
-      if (this.state.roadCount > 0 && this.state.roads.length == this.state.roadCount && !this.state.drawing) {
+      // If we have received all roads, start drawing
+      // console.log("roads: %d, total roads: %d", this.state.roadCount, this.state.roads.length);
+      if (this.state.roadCount > 0 && this.state.roads.length === this.state.roadCount && !this.state.drawing) {
         this.setState({ receivingSteps: false });
         this.renderMap();
       }
@@ -274,7 +290,7 @@ class App extends React.Component<object, AppState> {
     this.setState(this.getInitialState());
     this.setState({ disabled: true });
     var data: CommandData = {
-      status: "START_CALC",
+      status: 'START_CALC',
       algo: algo,
       startingNode: startingNode,
       stepSize: stepSize
@@ -282,7 +298,7 @@ class App extends React.Component<object, AppState> {
     if (endingNode !== undefined) {
       data.endingNode = endingNode;
     }
-    this.ws.emit("command", JSON.stringify(data));
+    this.ws.emit('command', JSON.stringify(data));
   }
 
   /**
@@ -307,17 +323,37 @@ class App extends React.Component<object, AppState> {
             </div>
             <div className="App-algo-exc">
               <div className="algoSelection">
-                <select onChange={this.change} value={this.state.algorithm} disabled={!this.state.isConnected || this.state.disabled}>
-                  {this.state.availableAlgos.map((algo: AvailableAlgo) => <option value={algo.command}>{algo.displayName}</option>)}
+                <select
+                  onChange={this.change}
+                  value={this.state.algorithm}
+                  disabled={!this.state.isConnected || this.state.disabled}
+                >
+                  {this.state.availableAlgos.map((algo: AvailableAlgo) =>
+                    <option key={algo.command} value={algo.command}>{algo.displayName}</option>)}
                 </select>
-                <button className="btn btn-primary" onClick={() => this.startAlgo((this.state.algorithm == undefined) ? "DIJKSTRA" : this.state.algorithm, 0, this.stepSize, 400)} disabled={!this.state.isConnected || this.state.disabled}>Draw map</button>
+                <button
+                  className="btn btn-primary"
+                  onClick={() =>
+                    this.startAlgo(
+                      (this.state.algorithm === undefined) ? 'DIJKSTRA' : this.state.algorithm,
+                      0,
+                      this.stepSize,
+                      400)}
+                  disabled={!this.state.isConnected || this.state.disabled}
+                >
+                  Draw map
+                </button>
               </div>
             </div>
           </div>
         </div>
         {!this.state.isConnected ? <Modal>Connecting to server</Modal> : null}
         {this.state.isConnected && this.state.receivingSteps ? <Modal>Receiving graph data from server
-          <progress className="prgress" max="100" value={((this.state.roads.length / this.state.roadCount) * 100).toFixed(0)} />
+          <progress
+            className="prgress"
+            max="100"
+            value={((this.state.roads.length / this.state.roadCount) * 100).toFixed(0)}
+          />
         </Modal> : null}
         <div className="map">
           <Stage width={this.state.width} height={this.state.height}>
@@ -329,7 +365,9 @@ class App extends React.Component<object, AppState> {
           </Stage>
         </div>
         <div className="footer">
-          Copyright &copy; 2017 <a href="https://github.com/alehuo" target="_blank">alehuo</a>. Mapgo is a course project on the university course Intermediate course studies: Data structures and algorithms.
+          Copyright &copy; 2017 <a href="https://github.com/alehuo" target="_blank">alehuo</a>.
+          Mapgo is a course project on the university course Intermediate course studies:
+          Data structures and algorithms.
         </div>
       </div>
     );
