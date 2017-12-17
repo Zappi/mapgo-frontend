@@ -154,7 +154,7 @@ class App extends React.Component<object, AppState> {
         <Line
           key={this.state.index}
           points={[this.convertX(r.e.x), this.convertY(r.e.y), this.convertX(r.s.x), this.convertY(r.s.y)]}
-          stroke="red"
+          stroke="#872383"
           strokeWidth={1}
         />);
       lines.push(line);
@@ -212,6 +212,7 @@ class App extends React.Component<object, AppState> {
         startingX,
         startingY,
         roadCount);
+        
       this.setState({ minX, minY, maxX, maxY, startingX, startingY, roadCount });
       this.setState({
         startingPoint: (
@@ -356,7 +357,7 @@ class App extends React.Component<object, AppState> {
           />
         </Modal> : null}
         <div className="map">
-          <Stage width={this.state.width} height={this.state.height}>
+          <Stage width={this.state.width} height={this.state.height} >
             <Layer>
               {this.state.lines.map((line: any) => line)}
               {this.state.startingPoint == null ? null : this.state.startingPoint}
